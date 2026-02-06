@@ -1,9 +1,9 @@
-package lab1;
+package practice1;
 
 import java.util.Locale;
 import java.util.Scanner;
 
-public class Lab1 {
+public class Practice1 {
     static Scanner sc = null;
     public static void run() {
         Locale.setDefault(Locale.UK);
