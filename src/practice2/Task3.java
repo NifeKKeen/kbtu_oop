@@ -25,7 +25,7 @@ class Time {
         if (hour < 12) {
             return String.format("%02d:%02d:%02d AM", hour, minute, second);
         } else {
-            return String.format("%02d:%02d:%02d AM", hour - 12, minute, second);
+            return String.format("%02d:%02d:%02d PM", hour - 12, minute, second);
         }
     }
     void add(Time otherTime) {
