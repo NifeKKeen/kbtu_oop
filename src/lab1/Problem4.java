@@ -3,12 +3,11 @@ package lab1;
 import practice2.CourseStudent;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 class Course {
     private String name, description;
-    ArrayList<Course> prerequisites = new ArrayList<>();
-    int credits;
+    private ArrayList<Course> prerequisites;
+    private int credits;
 
     Course(String name, String description, ArrayList<Course> prerequisites, int credits) {
         this.name = name;
@@ -16,12 +15,44 @@ class Course {
         this.prerequisites = prerequisites;
         this.credits = credits;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public ArrayList<Course> getPrerequisites() {
+        return prerequisites;
+    }
+
+    public void setPrerequisites(ArrayList<Course> prerequisites) {
+        this.prerequisites = prerequisites;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
 }
 
 class GradeBook {
     private String instructorName;
     private Course course;
-    private ArrayList<CourseStudent> students = new ArrayList<>();
+    private ArrayList<CourseStudent> students;
     static final double MIN_GRADE = 0, MAX_GRADE = 100;
 
     public GradeBook(String instructorName, Course course) {
@@ -140,6 +171,30 @@ class GradeBook {
             }
         }
         return highestGradeStudent;
+    }
+
+    public String getInstructorName() {
+        return instructorName;
+    }
+
+    public void setInstructorName(String instructorName) {
+        this.instructorName = instructorName;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public ArrayList<CourseStudent> getStudents() {
+        return students;
+    }
+
+    public void setStudents(ArrayList<CourseStudent> students) {
+        this.students = students;
     }
 }
 

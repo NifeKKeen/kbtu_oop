@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 class Data {
     private static int counter = 0;
-    private String uuid;
+    final private String uuid;
     int serialId;
     double x, y;
     int z;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CourseStudent extends Student {
-    private double grade = 0;
+    private double grade;
     public CourseStudent(String name, String id) {
         this(name, id, 0);
     }
