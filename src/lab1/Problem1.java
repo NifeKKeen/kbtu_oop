@@ -4,36 +4,25 @@ import java.util.Locale;
 import java.util.Scanner;
 
 class Data {
-    private static int counter = 0;
-    final private String uuid;
-    int serialId;
-    double x, y;
-    int z;
+    private double sum, mx;
+    private int len;
 
     Data() {
-        this.serialId = Data.counter++;
-        this.uuid = "uuid-" + serialId;
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
+        sum = len = 0;
+        mx = Double.NEGATIVE_INFINITY;
     }
 
-    public void addValueX(double value) {
-        this.x += value;
-    }
-    public void addValueY(double value) {
-        this.y += value;
-    }
-    public void addValueZ(int value) {
-        this.z += value;
+    public void addValue(double value) {
+        this.sum += value;
+        this.mx = Math.max(this.mx, value);
+        this.len++;
     }
 
     public double getAverage() {
-        return (x + y + z) / 3;
+        return sum / len;
     }
-
     public double getMax() {
-        return Math.max(Math.max(x, y), z);
+        return this.mx;
     }
 }
 
@@ -44,21 +33,13 @@ class Analyzer {
 
         Data data = new Data();
         try {
-            String input;
-            System.out.print("Enter number(Q to quit): ");
-            input = sc.next();
-            if (input.equals("Q")) return;
-            data.addValueX(Double.parseDouble(input));
-
-            System.out.print("Enter number(Q to quit): ");
-            input = sc.next();
-            if (input.equals("Q")) return;
-            data.addValueY(Double.parseDouble(input));
-
-            System.out.print("Enter number(Q to quit): ");
-            input = sc.next();
-            if (input.equals("Q")) return;
-            data.addValueZ(Integer.parseInt(input));
+            while (true) {
+                String input;
+                System.out.print("Enter number(Q to quit): ");
+                input = sc.next();
+                if (input.equals("Q")) break;
+                data.addValue(Double.parseDouble(input));
+            }
 
             System.out.println("Average = " + data.getAverage());
             System.out.println("Max = " + data.getMax());

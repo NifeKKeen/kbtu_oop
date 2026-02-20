@@ -42,8 +42,9 @@ class KBTUOpenTeam {
     public enum ParticipationLocation {
         ONSITE, ONLINE
     }
-    public boolean allWomen;
-    public boolean allSchool;
+    private ParticipationLocation location;
+    private boolean allWomen;
+    private boolean allSchool;
 
     public static final int MAX_MEMBERS = 3;
     private int currentMemberCount = 0;
@@ -51,7 +52,7 @@ class KBTUOpenTeam {
 
     private final int teamId;
     private String teamName;
-    private final KBTUOpenContestant[] contestants = {null, null, null};
+    private final KBTUOpenContestant[] contestants = new KBTUOpenContestant[3];
 
     public KBTUOpenTeam(String teamName) {
         this(teamName, ParticipationLocation.ONLINE);
@@ -59,6 +60,7 @@ class KBTUOpenTeam {
     public KBTUOpenTeam(String teamName, ParticipationLocation location) {
         this.teamName = teamName;
         this.teamId = ++totalRegisteredTeams;
+        this.location = location;
         this.allWomen = false;
         this.allSchool = false;
     }
@@ -120,11 +122,19 @@ class KBTUOpenTeam {
     public KBTUOpenContestant[] getContestants() {
         return contestants;
     }
+
+    public ParticipationLocation getLocation() {
+        return location;
+    }
+
+    public void setLocation(ParticipationLocation location) {
+        this.location = location;
+    }
 }
 
 public class Problem2 {
     static void solution() {
-        KBTUOpenTeam team = new KBTUOpenTeam("Team 1");
+        KBTUOpenTeam team = new KBTUOpenTeam("Team 1", KBTUOpenTeam.ParticipationLocation.ONSITE);
         team.registerMember(new KBTUOpenContestant("Alice", "Kanich"));
         team.registerMember(new KBTUOpenContestant("Bob", "Kanich"));
         team.registerMember(new KBTUOpenContestant("Carol", "Kanich"));
