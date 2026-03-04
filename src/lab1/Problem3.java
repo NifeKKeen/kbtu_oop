@@ -44,6 +44,10 @@ class Temperature {
     public void setScale(Scale scale) {
         this.scale = scale;
     }
+
+    public String toString() {
+        return String.format("Type: %s, degrees: %.1f", scale, value);
+    }
 }
 
 public class Problem3 {
