@@ -25,27 +25,30 @@ public class Pawn extends Piece {
 
         int dx = p2.getX() - p.getX();
         int dy = p2.getY() - p.getY();
+        System.out.println("HERE");
+        System.out.printf("dx: %d, dy: %d, col: %s\n", dx, dy, this.color);
 
+        int mxPush = 1;
         if (this.color == PieceColor.WHITE) {
-            int mxPush = 1;
-            if (this.p.getY() == 1) {
+            if (this.p.getX() == 1) {
                 mxPush = 2;
             }
 
-            if (this.p.getX() == p2.getX()) { // same column
-                if (!(1 <= dy && dy <= mxPush)) {
+            if (this.p.getY() == p2.getY()) { // same column
+                System.out.printf("mxPush: %d\n", mxPush);
+                if (!(1 <= dx && dx <= mxPush)) {
                     return false;
                 }
 
-                for (int i = this.p.getX(); i < this.p.getX() + mxPush; i++) {
-                    if (board.getPiece(new Position(i, p2.getY())) != null) {
+                for (int i = this.p.getX() + 1; i <= this.p.getX() + mxPush; i++) {
+                    if (board.getPiece(new Position(i, p.getY())) != null) {
                         return false;
                     }
                 }
 
                 return true;
             } else { // different columns
-                if (!(dy == 1 && (dx == -1 || dx == 1))) {
+                if (!(dx == 1 && (dy == -1 || dy == 1))) {
                     return false;
                 }
 
@@ -58,13 +61,12 @@ public class Pawn extends Piece {
                 return true;
             }
         } else {
-            int mxPush = 1;
-            if (this.p.getY() == 6) {
+            if (this.p.getX() == 6) {
                 mxPush = 2;
             }
 
-            if (this.p.getX() == p2.getX()) { // same column
-                if (!(-mxPush <= dy && dy <= -1)) {
+            if (this.p.getY() == p2.getY()) { // same column
+                if (!(-mxPush <= dx && dx <= -1)) {
                     return false;
                 }
 
@@ -76,7 +78,7 @@ public class Pawn extends Piece {
 
                 return true;
             } else { // different columns
-                if (!(dy == -1 && (dx == -1 || dx == 1))) {
+                if (!(dx == -1 && (dy == -1 || dy == 1))) {
                     return false;
                 }
 

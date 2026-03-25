@@ -4,9 +4,12 @@ import lab2.chess.models.pieces.*;
 
 public class Board {
     // 0 indexed
-    private Piece[][] field = new Piece[8][8];
+    private Piece[][] field;
+    public final int MAX_ROWS, MAX_COLS;
 
     public Board() {
+        this(8, 8);
+
         // Pawns
         for (int col = 0; col < 8; col++) {
             field[1][col] = new Pawn(PieceColor.WHITE, new Position(1, col), this);
@@ -40,13 +43,29 @@ public class Board {
         field[7][4] = new King(PieceColor.BLACK, new Position(7, 4), this);
     }
 
+    public Board(int mxRows, int mxCols) {
+        this.MAX_ROWS = mxRows;
+        this.MAX_COLS = mxRows;
+        field = new Piece[mxRows][mxCols];
+    }
+
     public void hardPlacePiece(Piece piece, Position p2) {
+        if (piece.getBoard() != this) {
+            throw new IllegalArgumentException("Piece is not on this board");
+        }
+
+        if (!isOnField(p2)) {
+            throw new IllegalArgumentException("Position is out of bounds");
+        }
+
         if (field[p2.getX()][p2.getY()] != null) {
             Piece piece2 = field[p2.getX()][p2.getY()];
             piece2.removeFromBoard();
         }
 
+        field[piece.getP().getX()][piece.getP().getY()] = null;
         field[p2.getX()][p2.getY()] = piece;
+        piece.setP(p2);
     }
 
     public Piece getPiece(Position p) {
@@ -54,6 +73,6 @@ public class Board {
     }
 
     public boolean isOnField(Position p) {
-        return 0 <= p.getX() && p.getX() < 8 && 0 <= p.getY() && p.getY() < 8;
+        return 0 <= p.getX() && p.getX() < MAX_ROWS && 0 <= p.getY() && p.getY() < MAX_COLS;
     }
 }

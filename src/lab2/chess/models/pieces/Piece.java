@@ -32,6 +32,10 @@ public abstract class Piece {
         return p;
     }
 
+    public void setP(Position p) {
+        this.p = p;
+    }
+
     public PieceColor getColor() {
         return color;
     }
