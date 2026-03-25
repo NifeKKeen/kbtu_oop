@@ -11,19 +11,42 @@ public class App {
     public void start() {
         Scanner sc = new Scanner(System.in);
         ChessApi chessApi = new ChessApi(new Board());
+        Position prevSelectedP = null;
         while (true) {
             if (state == AppState.GAMING) {
                 chessApi.printBoard();
 
                 System.out.println("Turn: " + chessApi.getTurn());
-                System.out.println("Enter starting and ending position: ");
-                Position p1 = new Position(sc.nextInt(), sc.nextInt());
-                Position p2 = new Position(sc.nextInt(), sc.nextInt());
+                System.out.println("Enter direction");
+                String input = sc.next();
+                int dx = 0, dy = 0;
+                boolean cursorRelated = false;
+                boolean selected = false;
+                if (input.equals("w")) {
+                    dx = 1;
+                    cursorRelated = true;
+                } else if (input.equals("s")) {
+                    dx = -1;
+                    cursorRelated = true;
+                } else if (input.equals("a")) {
+                    dy = -1;
+                    cursorRelated = true;
+                } else if (input.equals("d")) {
+                    dy = 1;
+                    cursorRelated = true;
+                } else if (input.equals("x")) {
+                    selected = true;
+                }
 
-                if (chessApi.makeTurn(p1, p2)) {
-                    System.out.println("Turn is over");
-                } else {
-                    System.out.println("Invalid move");
+                if (cursorRelated) {
+                    chessApi.pushCursor(dx, dy);
+                } else if (selected) {
+                    if (prevSelectedP == null) {
+                        prevSelectedP = new Position(chessApi.getCursor());
+                    } else {
+                        chessApi.makeTurn(prevSelectedP, chessApi.getCursor());
+                        prevSelectedP = null;
+                    }
                 }
             }
         }

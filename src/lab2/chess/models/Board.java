@@ -75,4 +75,7 @@ public class Board {
     public boolean isOnField(Position p) {
         return 0 <= p.getX() && p.getX() < MAX_ROWS && 0 <= p.getY() && p.getY() < MAX_COLS;
     }
+    public boolean isOnField(int x, int y) {
+        return 0 <= x && x < MAX_ROWS && 0 <= y && y < MAX_COLS;
+    }
 }

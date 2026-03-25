@@ -2,6 +2,10 @@ package lab2.chess.models;
 
 public class Position {
     private int x, y;
+    public Position(Position p) {
+        this.x = p.x;
+        this.y = p.y;
+    }
     public Position(int x, int y) {
         this.x = x;
         this.y = y;
