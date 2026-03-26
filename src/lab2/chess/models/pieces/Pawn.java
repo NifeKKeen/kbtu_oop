@@ -1,8 +1,8 @@
 package lab2.chess.models.pieces;
 
 import lab2.chess.models.Board;
-import lab2.chess.models.ChessAction;
-import lab2.chess.models.ChessActionCapture;
+import lab2.chess.models.actions.ChessAction;
+import lab2.chess.models.actions.ChessActionCapture;
 import lab2.chess.models.Position;
 
 public class Pawn extends Piece {

@@ -1,5 +1,8 @@
 package lab2.chess.models;
 
+import lab2.chess.models.actions.ChessAction;
+import lab2.chess.models.actions.ChessActionCapture;
+import lab2.chess.models.actions.ChessActionReplace;
 import lab2.chess.models.pieces.*;
 
 import java.util.ArrayList;
@@ -52,7 +55,7 @@ public class Board {
         field = new Piece[mxRows][mxCols];
     }
 
-    public void hardCapture(Piece piece, Position p2) {
+    public ChessActionCapture hardCapture(Piece piece, Position p2) {
         if (piece.getBoard() != this) {
             throw new IllegalArgumentException("Piece is not on this board");
         }
@@ -61,7 +64,8 @@ public class Board {
             throw new IllegalArgumentException("Position is out of bounds");
         }
 
-        moveHistory.add(new ChessActionCapture(new Position(piece.getP()), new Position(p2), piece, field[p2.getX()][p2.getY()]));
+        ChessActionCapture action = new ChessActionCapture(new Position(piece.getP()), new Position(p2), piece, field[p2.getX()][p2.getY()]);
+        moveHistory.add(action);
 
         if (field[p2.getX()][p2.getY()] != null) {
             Piece piece2 = field[p2.getX()][p2.getY()];
@@ -71,15 +75,16 @@ public class Board {
         field[piece.getP().getX()][piece.getP().getY()] = null;
         field[p2.getX()][p2.getY()] = piece;
         piece.setP(p2);
+        return action;
     }
 
-    public boolean undoHardCapture() {
+    public ChessActionCapture undoHardCapture() {
         if (moveHistory.isEmpty()) {
-            return false;
+            return null;
         }
 
         if (!(moveHistory.getLast() instanceof ChessActionCapture)) {
-            return false;
+            return null;
         }
 
         ChessActionCapture lastMove = (ChessActionCapture)moveHistory.getLast();
@@ -96,7 +101,7 @@ public class Board {
         }
 
         moveHistory.removeLast();
-        return true;
+        return lastMove;
     }
 
     public Piece getPiece(Position p) {
@@ -159,9 +164,10 @@ public class Board {
         return null;
     }
 
-    public void hardReplace(Position p, Piece piece) {
+    public ChessActionReplace hardReplace(Position p, Piece piece) {
         Piece pieceBefore = field[p.getX()][p.getY()];
-        moveHistory.add(new ChessActionReplace(piece == null ? p : piece.getP(), p, pieceBefore, piece));
+        ChessActionReplace action = new ChessActionReplace(piece == null ? p : piece.getP(), p, pieceBefore, piece);
+        moveHistory.add(action);
         field[p.getX()][p.getY()] = piece;
         if (piece != null) {
             piece.placeToBoard(this, p);
@@ -169,14 +175,15 @@ public class Board {
         if (pieceBefore != null) {
             pieceBefore.removeFromBoard();
         }
+        return action;
     }
 
-    public boolean undoHardReplace() {
+    public ChessActionReplace undoHardReplace() {
         if (moveHistory.isEmpty()) {
-            return false;
+            return null;
         }
         if (!(moveHistory.getLast() instanceof ChessActionReplace)) {
-            return false;
+            return null;
         }
 
         ChessActionReplace lastMove = (ChessActionReplace)moveHistory.getLast();
@@ -194,19 +201,19 @@ public class Board {
         }
 
         moveHistory.removeLast();
-        return true;
+        return lastMove;
     }
 
-    public boolean undoAction() {
+    public ChessAction undoAction() {
         if (moveHistory.isEmpty()) {
-            return false;
+            return null;
         }
         if (moveHistory.getLast() instanceof ChessActionReplace) {
             return undoHardReplace();
         } else if (moveHistory.getLast() instanceof ChessActionCapture) {
             return undoHardCapture();
         }
-        return false;
+        return null;
     }
 
     public ChessAction getLastAction() {

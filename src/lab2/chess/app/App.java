@@ -19,7 +19,7 @@ public class App extends JFrame {
         requestFocusInWindow();
 
         ChessApi chessApi = new ChessApi(new Board());
-        System.out.println("Turn: " + chessApi.getTurn());
+        System.out.println("Turn: " + chessApi.getTurnSide());
         chessApi.printWindow();
 
         // Register the event listener
@@ -55,7 +55,7 @@ public class App extends JFrame {
                     if (cursorRelated) {
                         chessApi.pushPromMenuCursor(dx);
                     } else if (selected) {
-                        chessApi.selectPromMenu(chessApi.getPromMenuCursor());
+                        chessApi.selectPromMenu();
                     }
                 } else if (actionNeeded == ActionNeededEnum.MOVE) {
                     if (cursorRelated) {

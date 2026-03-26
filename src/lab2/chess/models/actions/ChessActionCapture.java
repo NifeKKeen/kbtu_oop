@@ -1,5 +1,6 @@
-package lab2.chess.models;
+package lab2.chess.models.actions;
 
+import lab2.chess.models.Position;
 import lab2.chess.models.pieces.Piece;
 
 public class ChessActionCapture extends ChessAction {

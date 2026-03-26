@@ -1,8 +1,8 @@
 package lab2.chess.app;
 
-import lab2.chess.models.Board;
-import lab2.chess.models.ChooseMenu;
-import lab2.chess.models.Position;
+import lab2.chess.models.*;
+import lab2.chess.models.actions.Turn;
+import lab2.chess.models.actions.TurnHistoryApi;
 import lab2.chess.models.pieces.*;
 
 enum ActionNeededEnum {
@@ -14,9 +14,10 @@ enum ActionNeededEnum {
 
 public class ChessApi {
     private final Board board;
-    private PieceColor turn;
+    private PieceColor turnSide;
     private final Position curPtr = new Position(0, 0);
     private Piece selectedPiece = null;
+    private TurnHistoryApi turnHistoryApi;
 
     final int PRINT_STR_ROWS, PRINT_STR_COLS;
     static final int CELL_WIDTH = 3;
@@ -29,10 +30,19 @@ public class ChessApi {
     }
 
     public ChessApi(Board board, PieceColor turn) {
+        turnHistoryApi = new TurnHistoryApi(board);
         this.board = board;
-        this.turn = turn;
+        this.turnSide = turn;
         PRINT_STR_ROWS = board.MAX_ROWS * 2 + 1;
         PRINT_STR_COLS = board.MAX_COLS * CELL_WIDTH + 15 + 1;
+    }
+
+    private void switchColor() {
+        if (turnSide == PieceColor.WHITE) {
+            turnSide = PieceColor.BLACK;
+        } else {
+            turnSide = PieceColor.WHITE;
+        }
     }
 
     public PieceColor getWinner() {
@@ -46,7 +56,7 @@ public class ChessApi {
         }
 
         boolean haveMove = false;
-        if (turn == PieceColor.WHITE) {
+        if (turnSide == PieceColor.WHITE) {
             for (int i = 0; i < board.MAX_ROWS; i++) {
                 for (int j = 0; j < board.MAX_COLS; j++) {
                     Position p = new Position(i, j);
@@ -135,11 +145,11 @@ public class ChessApi {
         }
         if (selectedPiece == null) {
             Piece piece = board.getPiece(p);
-            if (piece != null && piece.getColor() == turn) {
+            if (piece != null && piece.getColor() == turnSide) {
                 selectedPiece = piece;
             }
         } else {
-            this.makeTurn(selectedPiece.getP(), p);
+            this.tryTurn(selectedPiece.getP(), p);
             selectedPiece = null;
 
             Piece fromPiece = board.getPiece(p);
@@ -150,7 +160,12 @@ public class ChessApi {
         }
     }
 
-    public boolean makeTurn(Position p1, Position p2) {
+    private Turn runningTurn = null;
+    public boolean tryTurn(Position p1, Position p2) {
+        if (runningTurn != null) {
+            throw new RuntimeException("Turn already running");
+        }
+
         if (getWinner() != null) {
             return false;
         }
@@ -161,7 +176,116 @@ public class ChessApi {
             return false;
         }
 
-        if (piece1.getColor() != turn) {
+        if (piece1.getColor() != turnSide) {
+            return false;
+        }
+
+        Piece piece2 = board.getPiece(p2);
+
+        // handle castling
+        // WARNING: THERE ARE VERY HARDCODED RULES
+        if (
+                piece1 instanceof King && piece2 instanceof Rook &&
+                piece1.getColor() == piece2.getColor()
+        ) {
+            King king1 = (King)board.getPiece(p1);
+            Rook rook2 = (Rook)board.getPiece(p2);
+            Turn lastTurn = turnHistoryApi.getLastTurn();
+
+            if (turnSide == PieceColor.WHITE) {
+                if (lastTurn != null && (lastTurn._whiteKingMoved || lastTurn._whiteRooksMoved.contains(rook2))) {
+                    return false;
+                }
+                if (p2.getY() == 0) {
+                    for (int j = 1; j < 4; j++) {
+                        if (board.getPiece(new Position(p1.getX(), j)) != null) {
+                            System.out.println(j);
+                            return false;
+                        }
+                    }
+                    for (int j = 2; j <= 4; j++) {
+                        if (board.isAttacked(new Position(p1.getX(), j), turnSide)) {
+                            System.out.println(j);
+                            return false;
+                        }
+                    }
+
+                    runningTurn = new Turn(turnHistoryApi.getLastTurn(), turnSide);
+                    runningTurn.addAction(board.hardCapture(king1, new Position(0, 2)));
+                    runningTurn.addAction(board.hardCapture(rook2, new Position(0, 3)));
+                    runningTurn.setComplete();
+                    turnHistoryApi.addTurn(runningTurn);
+                    runningTurn = null;
+                    switchColor();
+                    return true;
+                } else if (p2.getY() == 7) {
+                    for (int j = 6; j >= 5; j--) {
+                        if (board.getPiece(new Position(p1.getX(), j)) != null) {
+                            return false;
+                        }
+                    }
+
+                    for (int j = 6; j >= 4; j--) {
+                        if (board.isAttacked(new Position(p1.getX(), j), turnSide)) {
+                            return false;
+                        }
+                    }
+                    runningTurn = new Turn(turnHistoryApi.getLastTurn(), turnSide);
+                    runningTurn.addAction(board.hardCapture(king1, new Position(0, 6)));
+                    runningTurn.addAction(board.hardCapture(rook2, new Position(0, 5)));
+                    runningTurn.setComplete();
+                    turnHistoryApi.addTurn(runningTurn);
+                    runningTurn = null;
+                    switchColor();
+                    return true;
+                }
+            } else {
+                if (lastTurn != null && (lastTurn._blackKingMoved || lastTurn._blackRooksMoved.contains(rook2))) {
+                    return false;
+                }
+                if (p2.getY() == 0) {
+                    for (int j = 1; j < 4; j++) {
+                        if (board.getPiece(new Position(p1.getX(), j)) != null) {
+                            return false;
+                        }
+                    }
+                    for (int j = 2; j <= 4; j++) {
+                        if (board.isAttacked(new Position(p1.getX(), j), turnSide)) {
+                            return false;
+                        }
+                    }
+
+                    runningTurn = new Turn(turnHistoryApi.getLastTurn(), turnSide);
+                    runningTurn.addAction(board.hardCapture(king1, new Position(7, 2)));
+                    runningTurn.addAction(board.hardCapture(rook2, new Position(7, 3)));
+                    runningTurn.setComplete();
+                    turnHistoryApi.addTurn(runningTurn);
+                    runningTurn = null;
+                    switchColor();
+                    return true;
+                } else if (p2.getY() == 7) {
+                    for (int j = 6; j >= 5; j--) {
+                        if (board.getPiece(new Position(p1.getX(), j)) != null) {
+                            return false;
+                        }
+                    }
+
+                    for (int j = 6; j >= 4; j--) {
+                        if (board.isAttacked(new Position(p1.getX(), j), turnSide)) {
+                            return false;
+                        }
+                    }
+                    runningTurn = new Turn(turnHistoryApi.getLastTurn(), turnSide);
+                    runningTurn.addAction(board.hardCapture(king1, new Position(7, 6)));
+                    runningTurn.addAction(board.hardCapture(rook2, new Position(7, 5)));
+                    runningTurn.setComplete();
+                    turnHistoryApi.addTurn(runningTurn);
+                    runningTurn = null;
+                    switchColor();
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -169,26 +293,30 @@ public class ChessApi {
             return false;
         }
         
-        King turnSideKing = board.getAnyKing(turn);
+        King turnSideKing = board.getAnyKing(turnSide);
         if (board.isKingAttackedAfterMove(turnSideKing, p1, p2)) {
             return false;
         }
 
-        Pawn oppositePawn = null;
+        runningTurn = new Turn(turnHistoryApi.getLastTurn(), turnSide);
+
+        // handling en passant
         if (piece1 instanceof Pawn) {
-            oppositePawn = ((Pawn) piece1).getEnPassantCapturedPawn(p2);
-        }
-        board.hardCapture(piece1, p2);
-        if (piece1 instanceof Pawn) {
-            if (oppositePawn != null) {
-                board.hardReplace(oppositePawn.getP(), null);
+            Pawn siblingOppositePawn = ((Pawn) piece1).getEnPassantCapturedPawn(p2);
+            if (siblingOppositePawn != null) {
+                runningTurn.addAction(board.hardReplace(siblingOppositePawn.getP(), null));
             }
         }
+        runningTurn.addAction(board.hardCapture(piece1, p2));
 
-        if (turn == PieceColor.WHITE) {
-            turn = PieceColor.BLACK;
+        System.out.println(piece1 instanceof Pawn && ((Pawn) piece1).shouldPromote());
+        if (piece1 instanceof Pawn && ((Pawn) piece1).shouldPromote()) {
+
         } else {
-            turn = PieceColor.WHITE;
+            runningTurn.setComplete();
+            turnHistoryApi.addTurn(runningTurn);
+            runningTurn = null;
+            switchColor();
         }
 
         return true;
@@ -303,7 +431,7 @@ public class ChessApi {
                 }
             }
         } else if (neededAction == ActionNeededEnum.MOVE) {
-            String turnDisplayStr = "Turn for " + (turn == PieceColor.WHITE ? "White" : "Black");
+            String turnDisplayStr = "Turn for " + (turnSide == PieceColor.WHITE ? "White" : "Black");
             setStrAtSideBar(sb, 8, turnDisplayStr);
 
             excelAt(sb, curPtr, '>', '<');
@@ -320,8 +448,8 @@ public class ChessApi {
         System.out.print(sb);
     }
 
-    public PieceColor getTurn() {
-        return turn;
+    public PieceColor getTurnSide() {
+        return turnSide;
     }
 
     public void pushCursor(int dx, int dy) {
@@ -346,19 +474,18 @@ public class ChessApi {
         return curPtr;
     }
 
-    public void rollbackTurn() {
+    public Turn rollbackTurn() {
         selectedPiece = null;
-        // if pawn promotion was selected, undo the promotion
-        board.undoHardReplace();
 
-        if (!board.undoHardCapture()) {
-            return;
+        Turn lastTurn = turnHistoryApi.undoTurn();
+        if (lastTurn == null) {
+            return null;
         }
-        if (turn == PieceColor.WHITE) {
-            turn = PieceColor.BLACK;
-        } else {
-            turn = PieceColor.WHITE;
+
+        if (lastTurn.isComplete()) {
+            switchColor();
         }
+        return lastTurn;
     }
 
     public void pushPromMenuCursor(int dx) {
@@ -377,34 +504,60 @@ public class ChessApi {
         return pawnPromotionMenu.getCurrentPtr();
     }
 
-    public void selectPromMenu(int i) {
+    public void selectPromMenu() {
         if (pawnPromotionMenu == null) {
             return;
         }
 
         String option = pawnPromotionMenu.getCurrentOption();
         if (option.equals("Back")) {
+            turnHistoryApi.addTurn(runningTurn);
             rollbackTurn();
+            runningTurn = null;
         } else if (option.equals("Queen")) {
-            board.hardReplace(
-                    pieceToTransform.getP(),
-                    new Queen(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+            runningTurn.addAction(
+                board.hardReplace(
+                        pieceToTransform.getP(),
+                        new Queen(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+                )
             );
+            runningTurn.setComplete();
+            turnHistoryApi.addTurn(runningTurn);
+            runningTurn = null;
+            switchColor();
         } else if (option.equals("Knight")) {
-            board.hardReplace(
-                    pieceToTransform.getP(),
-                    new Knight(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+            runningTurn.addAction(
+                board.hardReplace(
+                        pieceToTransform.getP(),
+                        new Knight(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+                )
             );
+            runningTurn.setComplete();
+            turnHistoryApi.addTurn(runningTurn);
+            runningTurn = null;
+            switchColor();
         } else if (option.equals("Rook")) {
-            board.hardReplace(
-                    pieceToTransform.getP(),
-                    new Rook(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+            runningTurn.addAction(
+                board.hardReplace(
+                        pieceToTransform.getP(),
+                        new Rook(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+                )
             );
+            runningTurn.setComplete();
+            turnHistoryApi.addTurn(runningTurn);
+            runningTurn = null;
+            switchColor();
         } else if (option.equals("Bishop")) {
-            board.hardReplace(
-                    pieceToTransform.getP(),
-                    new Bishop(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+            runningTurn.addAction(
+                board.hardReplace(
+                        pieceToTransform.getP(),
+                        new Bishop(pieceToTransform.getColor(), pieceToTransform.getP(), pieceToTransform.getBoard())
+                )
             );
+            runningTurn.setComplete();
+            turnHistoryApi.addTurn(runningTurn);
+            runningTurn = null;
+            switchColor();
         }
         pieceToTransform = null;
         pawnPromotionMenu = null;
