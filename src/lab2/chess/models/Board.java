@@ -118,7 +118,7 @@ public class Board {
                 if (piece == null) {
                     continue;
                 }
-                if (piece.getColor() != withColor && piece.canCapture(p)) {
+                if (piece.getColor() != withColor && piece.canCapturePiece(p)) {
                     return true;
                 }
             }
@@ -161,10 +161,14 @@ public class Board {
 
     public void hardReplace(Position p, Piece piece) {
         Piece pieceBefore = field[p.getX()][p.getY()];
-        moveHistory.add(new ChessActionReplace(pieceBefore, piece));
+        moveHistory.add(new ChessActionReplace(piece == null ? p : piece.getP(), p, pieceBefore, piece));
         field[p.getX()][p.getY()] = piece;
-        piece.placeToBoard(this, p);
-        pieceBefore.removeFromBoard();
+        if (piece != null) {
+            piece.placeToBoard(this, p);
+        }
+        if (pieceBefore != null) {
+            pieceBefore.removeFromBoard();
+        }
     }
 
     public boolean undoHardReplace() {
@@ -176,12 +180,18 @@ public class Board {
         }
 
         ChessActionReplace lastMove = (ChessActionReplace)moveHistory.getLast();
-        field[lastMove.pieceAfter.getP().getX()][lastMove.pieceAfter.getP().getY()] = null;
+        if (lastMove.pieceAfter != null) {
+            field[lastMove.pieceAfter.getP().getX()][lastMove.pieceAfter.getP().getY()] = null;
+        }
 
-        lastMove.pieceBefore.placeToBoard(this, lastMove.pieceAfter.getP());
-        field[lastMove.pieceBefore.getP().getX()][lastMove.pieceBefore.getP().getY()] = lastMove.pieceBefore;
+        if (lastMove.pieceBefore != null) {
+            lastMove.pieceBefore.placeToBoard(this, lastMove.fromPos);
+            field[lastMove.pieceBefore.getP().getX()][lastMove.pieceBefore.getP().getY()] = lastMove.pieceBefore;
+        }
 
-        lastMove.pieceAfter.removeFromBoard();
+        if (lastMove.pieceAfter != null) {
+            lastMove.pieceAfter.removeFromBoard();
+        }
 
         moveHistory.removeLast();
         return true;
@@ -197,5 +207,9 @@ public class Board {
             return undoHardCapture();
         }
         return false;
+    }
+
+    public ChessAction getLastAction() {
+        return moveHistory.isEmpty() ? null : moveHistory.getLast();
     }
 }

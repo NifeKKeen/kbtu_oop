@@ -27,7 +27,7 @@ public abstract class Piece {
     }
 
     public boolean isLegalMove(Position p2) {
-        if (!this.canCapture(p2)) {
+        if (!this.canCapturePiece(p2)) {
             return false;
         }
 
@@ -35,7 +35,7 @@ public abstract class Piece {
         return piece2 == null || piece2.getColor() != this.color;
     }
 
-    abstract public boolean canCapture(Position p2);
+    abstract public boolean canCapturePiece(Position p2);
 
     public Position getP() {
         return p;

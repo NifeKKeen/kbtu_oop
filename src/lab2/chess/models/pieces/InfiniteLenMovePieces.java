@@ -12,7 +12,7 @@ abstract public class InfiniteLenMovePieces extends Piece {
     abstract public boolean canReachFormula(Position p1, Position p2);
 
     @Override
-    public boolean canCapture(Position p2) {
+    public boolean canCapturePiece(Position p2) {
         if (!isOnBoard()) {
             return false;
         }

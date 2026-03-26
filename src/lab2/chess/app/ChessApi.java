@@ -174,7 +174,17 @@ public class ChessApi {
             return false;
         }
 
+        Pawn oppositePawn = null;
+        if (piece1 instanceof Pawn) {
+            oppositePawn = ((Pawn) piece1).getEnPassantCapturedPawn(p2);
+        }
         board.hardCapture(piece1, p2);
+        if (piece1 instanceof Pawn) {
+            if (oppositePawn != null) {
+                board.hardReplace(oppositePawn.getP(), null);
+            }
+        }
+
         if (turn == PieceColor.WHITE) {
             turn = PieceColor.BLACK;
         } else {

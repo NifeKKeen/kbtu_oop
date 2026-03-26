@@ -1,6 +1,8 @@
 package lab2.chess.models.pieces;
 
 import lab2.chess.models.Board;
+import lab2.chess.models.ChessAction;
+import lab2.chess.models.ChessActionCapture;
 import lab2.chess.models.Position;
 
 public class Pawn extends Piece {
@@ -15,11 +17,6 @@ public class Pawn extends Piece {
         }
 
         if (isSamePosition(p2) || !board.isOnField(p2)) {
-            return false;
-        }
-
-        Piece piece2 = board.getPiece(p2);
-        if (piece2 != null && this.color == piece2.getColor()) {
             return false;
         }
 
@@ -49,13 +46,25 @@ public class Pawn extends Piece {
                     return false;
                 }
 
-                if (board.getPiece(p2) == null
-                        // || piece2.getColor() == this.color // already checked
-                ) {
-                    return false;
-                }
+                Piece pieceTo = board.getPiece(p2);
+                if (pieceTo == null) {
+                    // check for en passant
+                    Piece sibling = board.getPiece(new Position(p.getX(), p.getY() + dy));
+                    if (sibling == null || sibling.getColor() == this.color || !(sibling instanceof Pawn)) {
+                        return false;
+                    }
 
-                return true;
+                    ChessAction lastAction = board.getLastAction();
+                    if (lastAction == null) {
+                        return false;
+                    }
+                    if (lastAction instanceof ChessActionCapture && ((ChessActionCapture) lastAction).fromPiece == sibling && ((ChessActionCapture) lastAction).getCaptureDx() == -2) {
+                        return true;
+                    }
+                    return false;
+                } else {
+                    return pieceTo.getColor() != color;
+                }
             }
         } else {
             if (this.p.getX() == 6) {
@@ -79,19 +88,31 @@ public class Pawn extends Piece {
                     return false;
                 }
 
-                if (board.getPiece(p2) == null
-                    // || piece2.getColor() == this.color // already checked
-                ) {
-                    return false;
-                }
+                Piece pieceTo = board.getPiece(p2);
+                if (pieceTo == null) {
+                    // check for en passant
+                    Piece sibling = board.getPiece(new Position(p.getX(), p.getY() + dy));
+                    if (sibling == null || sibling.getColor() == this.color || !(sibling instanceof Pawn)) {
+                        return false;
+                    }
 
-                return true;
+                    ChessAction lastAction = board.getLastAction();
+                    if (lastAction == null) {
+                        return false;
+                    }
+                    if (lastAction instanceof ChessActionCapture && ((ChessActionCapture) lastAction).fromPiece == sibling && ((ChessActionCapture) lastAction).getCaptureDx() == 2) {
+                        return true;
+                    }
+                    return false;
+                } else {
+                    return pieceTo.getColor() != color;
+                }
             }
         }
     }
 
     @Override
-    public boolean canCapture(Position p2) {
+    public boolean canCapturePiece(Position p2) {
         if (!isOnBoard()) {
             return false;
         }
@@ -116,6 +137,76 @@ public class Pawn extends Piece {
 
             return true;
         }
+    }
+
+    public Pawn getEnPassantCapturedPawn(Position p2) {
+        if (!isOnBoard()) {
+            return null;
+        }
+
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
+            return null;
+        }
+
+        int dx = p2.getX() - p.getX();
+        int dy = p2.getY() - p.getY();
+
+        if (this.color == PieceColor.WHITE) {
+            if (dy != 0) { // different columns
+                if (!(dx == 1 && (dy == -1 || dy == 1))) {
+                    return null;
+                }
+
+                Piece pieceTo = board.getPiece(p2);
+                if (pieceTo == null) {
+                    // check for en passant
+                    Piece sibling = board.getPiece(new Position(p.getX(), p.getY() + dy));
+                    if (sibling == null || sibling.getColor() == this.color || !(sibling instanceof Pawn)) {
+                        return null;
+                    }
+                    Pawn siblingPawn = (Pawn) sibling;
+
+                    ChessAction lastAction = board.getLastAction();
+                    if (lastAction == null) {
+                        return null;
+                    }
+                    if (lastAction instanceof ChessActionCapture && ((ChessActionCapture) lastAction).fromPiece == siblingPawn && ((ChessActionCapture) lastAction).getCaptureDx() == -2) {
+                        return siblingPawn;
+                    }
+                    return null;
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            if (this.p.getY() != p2.getY()) { // different columns
+                if (!(dx == -1 && (dy == -1 || dy == 1))) {
+                    return null;
+                }
+
+                Piece pieceTo = board.getPiece(p2);
+                if (pieceTo == null) {
+                    // check for en passant
+                    Piece sibling = board.getPiece(new Position(p.getX(), p.getY() + dy));
+                    if (sibling == null || sibling.getColor() == this.color || !(sibling instanceof Pawn)) {
+                        return null;
+                    }
+                    Pawn siblingPawn = (Pawn) sibling;
+
+                    ChessAction lastAction = board.getLastAction();
+                    if (lastAction == null) {
+                        return null;
+                    }
+                    if (lastAction instanceof ChessActionCapture && ((ChessActionCapture) lastAction).fromPiece == siblingPawn && ((ChessActionCapture) lastAction).getCaptureDx() == 2) {
+                        return siblingPawn;
+                    }
+                    return null;
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
     public boolean shouldPromote() {

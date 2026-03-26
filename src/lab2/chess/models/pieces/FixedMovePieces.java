@@ -10,7 +10,7 @@ public class FixedMovePieces extends Piece {
     }
 
     @Override
-    public boolean canCapture(Position p2) {
+    public boolean canCapturePiece(Position p2) {
         if (!isOnBoard()) {
             return false;
         }
