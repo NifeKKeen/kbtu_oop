@@ -9,7 +9,6 @@ import java.awt.event.KeyEvent;
 
 public class App extends JFrame {
     ChessApi chessApi;
-    Position prevSelectedP = null;
 
     public App() {
         // Set up the invisible/blank window strictly for capturing input
@@ -20,7 +19,8 @@ public class App extends JFrame {
         requestFocusInWindow();
 
         ChessApi chessApi = new ChessApi(new Board());
-
+        chessApi.printBoard();
+        
         // Register the event listener
         addKeyListener(new KeyAdapter() {
             @Override
@@ -50,12 +50,7 @@ public class App extends JFrame {
                 if (cursorRelated) {
                     chessApi.pushCursor(dx, dy);
                 } else if (selected) {
-                    if (prevSelectedP == null) {
-                        prevSelectedP = new Position(chessApi.getCursor());
-                    } else {
-                        chessApi.makeTurn(prevSelectedP, chessApi.getCursor());
-                        prevSelectedP = null;
-                    }
+                    chessApi.selectAt(chessApi.getCursor());
                 }
 
                 chessApi.printBoard();

@@ -8,6 +8,7 @@ public class ChessApi {
     private Board board;
     private PieceColor turn = PieceColor.WHITE;
     private Position curPtr = new Position(0, 0);
+    private Piece selectedPiece = null;
 
     public ChessApi(Board board) {
         this(board, PieceColor.WHITE);
@@ -16,6 +17,26 @@ public class ChessApi {
     public ChessApi(Board board, PieceColor turn) {
         this.board = board;
         this.turn = turn;
+    }
+
+    public void setSelectedPiece(Piece piece) {
+        selectedPiece = piece;
+    }
+
+    public void setSelectedPieceAt(Position p) {
+        selectedPiece = board.getPiece(p);
+    }
+
+    public void selectAt(Position p) {
+        if (!board.isOnField(p)) {
+            return;
+        }
+        if (selectedPiece == null) {
+            selectedPiece = board.getPiece(p);
+        } else {
+            this.makeTurn(selectedPiece.getP(), p);
+            selectedPiece = null;
+        }
     }
 
     public boolean makeTurn(Position p1, Position p2) {
@@ -78,31 +99,46 @@ public class ChessApi {
         return "n";
     }
 
+    public void excelAt(StringBuilder sb, Position p, char left, char right) {
+        int pos = getCellStartingPositionInSB(p);
+        sb.setCharAt(pos - 1, left);
+        sb.setCharAt(pos + 1, right);
+    }
+
+    public int getCellStartingPositionInSB(Position p) {
+        int strCols = board.MAX_COLS * 3 + 1;
+        int strRow = (board.MAX_ROWS - p.getX() - 1) * 2 + 1;
+        return strRow * strCols + p.getY() * 3 + 1;
+    }
+
     public void printBoard() {
         StringBuilder sb = new StringBuilder();
-        int strCols = board.MAX_COLS * 3 + 1;
+
+        sb.append(("   ".repeat(board.MAX_COLS) + "\n").repeat(board.MAX_ROWS * 2 + 1));
+
         for (int i = board.MAX_ROWS - 1; i >= 0; i--) {
             for (int j = 0; j < board.MAX_COLS; j++) {
-                sb.append("   ");
+                Position p = new Position(i, j);
+                int strPos = getCellStartingPositionInSB(p);
+                Piece piece = board.getPiece(p);
+                if (piece != null) {
+                    sb.setCharAt(strPos, getPieceChar(piece).charAt(0));
+                    if (selectedPiece != null && selectedPiece.isLegalMove(p)) {
+                        excelAt(sb, p, '#', '#');
+                    }
+                } else {
+                    if (selectedPiece != null && selectedPiece.isLegalMove(p)) {
+                        sb.setCharAt(strPos, "0".charAt(0));
+                    } else if ((i + j) % 2 == 0) {
+                        sb.setCharAt(strPos, "+".charAt(0));
+                    } else {
+                        sb.setCharAt(strPos, "-".charAt(0));
+                    }
+                }
             }
-            sb.append("\n");
-
-            for (int j = 0; j < board.MAX_COLS; j++) {
-                sb.append(" ").append(getPieceChar(board.getPiece(new Position(i, j)))).append(" ");
-            }
-            sb.append("\n");
-            System.out.println();
         }
-        for (int j = 0; j < board.MAX_COLS; j++) {
-            sb.append("   ");
-        }
-        sb.append("\n");
 
-        int cursorStrRow = (board.MAX_ROWS - curPtr.getX() - 1) * 2 + 1;
-        int cursorStrCol = curPtr.getY() * 3 + 1;
-
-        sb.setCharAt(cursorStrRow * strCols + cursorStrCol - 1, '>');
-        sb.setCharAt(cursorStrRow * strCols + cursorStrCol + 1, '<');
+        excelAt(sb, curPtr, '>', '<');
 
         System.out.print(sb.toString());
     }
