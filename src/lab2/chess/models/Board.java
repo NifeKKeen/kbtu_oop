@@ -8,7 +8,7 @@ public class Board {
     // 0 indexed
     private final Piece[][] field;
     public final int MAX_ROWS, MAX_COLS;
-    private final ArrayList<ChessMove> moveHistory = new ArrayList<>();
+    private final ArrayList<ChessAction> moveHistory = new ArrayList<>();
 
     public Board() {
         this(8, 8);
@@ -52,7 +52,7 @@ public class Board {
         field = new Piece[mxRows][mxCols];
     }
 
-    public void hardPlacePiece(Piece piece, Position p2) {
+    public void hardCapture(Piece piece, Position p2) {
         if (piece.getBoard() != this) {
             throw new IllegalArgumentException("Piece is not on this board");
         }
@@ -61,7 +61,7 @@ public class Board {
             throw new IllegalArgumentException("Position is out of bounds");
         }
 
-        moveHistory.add(new ChessMove(new Position(piece.getP()), new Position(p2), piece, field[p2.getX()][p2.getY()]));
+        moveHistory.add(new ChessActionCapture(new Position(piece.getP()), new Position(p2), piece, field[p2.getX()][p2.getY()]));
 
         if (field[p2.getX()][p2.getY()] != null) {
             Piece piece2 = field[p2.getX()][p2.getY()];
@@ -73,12 +73,17 @@ public class Board {
         piece.setP(p2);
     }
 
-    public boolean undoHardPlace() {
+    public boolean undoHardCapture() {
         if (moveHistory.isEmpty()) {
             return false;
         }
 
-        ChessMove lastMove = moveHistory.getLast();
+        if (!(moveHistory.getLast() instanceof ChessActionCapture)) {
+            return false;
+        }
+
+        ChessActionCapture lastMove = (ChessActionCapture)moveHistory.getLast();
+
         Piece fromPiece = lastMove.fromPiece,
                 toPiece = lastMove.toPiece;
 
@@ -124,7 +129,7 @@ public class Board {
     public boolean isKingAttackedAfterMove(King king, Position p1, Position p2) {
         // assuming move from p1 to p2 is legal
 
-        hardPlacePiece(getPiece(p1), p2);
+        hardCapture(getPiece(p1), p2);
         boolean isKingAttacked = false;
         if (king.getColor() == PieceColor.WHITE) {
             if (isAttacked(king.getP(), PieceColor.WHITE)) {
@@ -136,7 +141,7 @@ public class Board {
             }
         }
 
-        undoHardPlace();
+        undoHardCapture();
         return isKingAttacked;
     }
 
@@ -152,5 +157,45 @@ public class Board {
             }
         }
         return null;
+    }
+
+    public void hardReplace(Position p, Piece piece) {
+        Piece pieceBefore = field[p.getX()][p.getY()];
+        moveHistory.add(new ChessActionReplace(pieceBefore, piece));
+        field[p.getX()][p.getY()] = piece;
+        piece.placeToBoard(this, p);
+        pieceBefore.removeFromBoard();
+    }
+
+    public boolean undoHardReplace() {
+        if (moveHistory.isEmpty()) {
+            return false;
+        }
+        if (!(moveHistory.getLast() instanceof ChessActionReplace)) {
+            return false;
+        }
+
+        ChessActionReplace lastMove = (ChessActionReplace)moveHistory.getLast();
+        field[lastMove.pieceAfter.getP().getX()][lastMove.pieceAfter.getP().getY()] = null;
+
+        lastMove.pieceBefore.placeToBoard(this, lastMove.pieceAfter.getP());
+        field[lastMove.pieceBefore.getP().getX()][lastMove.pieceBefore.getP().getY()] = lastMove.pieceBefore;
+
+        lastMove.pieceAfter.removeFromBoard();
+
+        moveHistory.removeLast();
+        return true;
+    }
+
+    public boolean undoAction() {
+        if (moveHistory.isEmpty()) {
+            return false;
+        }
+        if (moveHistory.getLast() instanceof ChessActionReplace) {
+            return undoHardReplace();
+        } else if (moveHistory.getLast() instanceof ChessActionCapture) {
+            return undoHardCapture();
+        }
+        return false;
     }
 }

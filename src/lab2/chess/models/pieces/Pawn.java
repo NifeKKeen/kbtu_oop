@@ -117,4 +117,13 @@ public class Pawn extends Piece {
             return true;
         }
     }
+
+    public boolean shouldPromote() {
+        if (this.color == PieceColor.WHITE) {
+            return this.p.getX() == board.MAX_ROWS - 1;
+        } else if (this.color == PieceColor.BLACK) {
+            return this.p.getX() == 0;
+        }
+        return false;
+    }
 }
