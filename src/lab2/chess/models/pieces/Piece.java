@@ -33,7 +33,8 @@ public abstract class Piece {
     }
 
     public void setP(Position p) {
-        this.p = p;
+        this.p.setX(p.getX());
+        this.p.setY(p.getY());
     }
 
     public PieceColor getColor() {

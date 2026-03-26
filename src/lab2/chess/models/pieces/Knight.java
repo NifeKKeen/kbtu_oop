@@ -16,7 +16,7 @@ public class Knight extends Piece {
             return false;
         }
 
-        if (!(!isSamePosition(p2) && board.isOnField(p2))) {
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
             return false;
         }
 

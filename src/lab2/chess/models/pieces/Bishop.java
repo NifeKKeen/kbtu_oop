@@ -18,7 +18,7 @@ public class Bishop extends Piece {
             return false;
         }
 
-        if (!(!isSamePosition(p2) && board.isOnField(p2))) {
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
             return false;
         }
 
@@ -32,13 +32,13 @@ public class Bishop extends Piece {
         }
 
         int dx = p2.getX() - p.getX();
-        int dy = p2.getX() - p.getX();
+        int dy = p2.getY() - p.getY();
 
         dx = Math.clamp(dx, -1, 1);
         dy = Math.clamp(dy, -1, 1);
 
         Position cur = new Position(p.getX(), p.getY());
-        while (cur.getX() != p2.getX() && cur.getY() != p2.getY()) {
+        while (!(cur.getX() == p2.getX() && cur.getY() == p2.getY())) {
             cur.addX(dx);
             cur.addY(dy);
             if (board.getPiece(cur) != null) {

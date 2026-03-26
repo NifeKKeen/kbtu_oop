@@ -14,7 +14,7 @@ public class Pawn extends Piece {
             return false;
         }
 
-        if (!(!isSamePosition(p2) && board.isOnField(p2))) {
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
             return false;
         }
 
@@ -25,22 +25,19 @@ public class Pawn extends Piece {
 
         int dx = p2.getX() - p.getX();
         int dy = p2.getY() - p.getY();
-        System.out.println("HERE");
-        System.out.printf("dx: %d, dy: %d, col: %s\n", dx, dy, this.color);
 
         int mxPush = 1;
         if (this.color == PieceColor.WHITE) {
-            if (this.p.getX() == 1) {
-                mxPush = 2;
-            }
+            if (dy == 0) { // same column
+                if (this.p.getX() == 1) {
+                    mxPush = 2;
+                }
 
-            if (this.p.getY() == p2.getY()) { // same column
-                System.out.printf("mxPush: %d\n", mxPush);
                 if (!(1 <= dx && dx <= mxPush)) {
                     return false;
                 }
 
-                for (int i = this.p.getX() + 1; i <= this.p.getX() + mxPush; i++) {
+                for (int i = this.p.getX() + 1; i <= this.p.getX() + dx; i++) {
                     if (board.getPiece(new Position(i, p.getY())) != null) {
                         return false;
                     }
@@ -70,7 +67,7 @@ public class Pawn extends Piece {
                     return false;
                 }
 
-                for (int i = this.p.getX() - 1; i >= this.p.getX() - mxPush; i--) {
+                for (int i = this.p.getX() - 1; i >= this.p.getX() + dx; i--) {
                     if (board.getPiece(new Position(i, p2.getY())) != null) {
                         return false;
                     }
