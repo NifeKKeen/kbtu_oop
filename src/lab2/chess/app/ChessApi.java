@@ -34,7 +34,7 @@ public class ChessApi {
         }
 
         board.hardPlacePiece(piece1, p2);
-        if (piece1.getColor() == PieceColor.WHITE) {
+        if (turn == PieceColor.WHITE) {
             turn = PieceColor.BLACK;
         } else {
             turn = PieceColor.WHITE;
@@ -45,52 +45,50 @@ public class ChessApi {
 
     private static String getPieceChar(Piece piece) {
         if (piece == null) {
-            return "  ";
+            return ".";
         } else if (piece.getColor() == PieceColor.WHITE) {
             if (piece instanceof Pawn) {
-                return "wP";
+                return "♟";
             } else if (piece instanceof King) {
-                return "wK";
+                return "♚";
             } else if (piece instanceof Queen) {
-                return "wQ";
+                return "♛";
             } else if (piece instanceof Bishop) {
-                return "wB";
+                return "♝";
             } else if (piece instanceof Knight) {
-                return "wN";
+                return "♞";
             } else if (piece instanceof Rook) {
-                return "wR";
+                return "♜";
             }
         } else {
             if (piece instanceof Pawn) {
-                return "bP";
+                return "♙";
             } else if (piece instanceof King) {
-                return "bK";
+                return "♔";
             } else if (piece instanceof Queen) {
-                return "bQ";
+                return "♕";
             } else if (piece instanceof Bishop) {
-                return "bB";
+                return "♗";
             } else if (piece instanceof Knight) {
-                return "bN";
+                return "♘";
             } else if (piece instanceof Rook) {
-                return "bR";
+                return "♖";
             }
         }
-        return "na";
+        return "n";
     }
 
     public void printBoard() {
         StringBuilder sb = new StringBuilder();
-        int strCols = board.MAX_COLS * 4 + 1;
+        int strCols = board.MAX_COLS * 3 + 1;
         for (int i = board.MAX_ROWS - 1; i >= 0; i--) {
             for (int j = 0; j < board.MAX_COLS; j++) {
-                sb.append("    ");
+                sb.append("   ");
             }
             sb.append("\n");
 
             for (int j = 0; j < board.MAX_COLS; j++) {
-                sb.append(" ");
-                sb.append(getPieceChar(board.getPiece(new Position(i, j))));
-                sb.append(" ");
+                sb.append(" ").append(getPieceChar(board.getPiece(new Position(i, j)))).append(" ");
             }
             sb.append("\n");
             System.out.println();
@@ -101,10 +99,10 @@ public class ChessApi {
         sb.append("\n");
 
         int cursorStrRow = (board.MAX_ROWS - curPtr.getX() - 1) * 2 + 1;
-        int cursorStrCol = curPtr.getY() * 4 + 1;
+        int cursorStrCol = curPtr.getY() * 3 + 1;
 
         sb.setCharAt(cursorStrRow * strCols + cursorStrCol - 1, '>');
-        sb.setCharAt(cursorStrRow * strCols + cursorStrCol + 2, '<');
+        sb.setCharAt(cursorStrRow * strCols + cursorStrCol + 1, '<');
 
         System.out.print(sb.toString());
     }

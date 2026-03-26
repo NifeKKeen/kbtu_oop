@@ -3,38 +3,47 @@ package lab2.chess.app;
 import lab2.chess.models.Board;
 import lab2.chess.models.Position;
 
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-public class App {
-    public AppState state = AppState.GAMING;
+public class App extends JFrame {
+    ChessApi chessApi;
+    Position prevSelectedP = null;
 
-    public void start() {
-        Scanner sc = new Scanner(System.in);
+    public App() {
+        // Set up the invisible/blank window strictly for capturing input
+        setTitle("Chess Game Input Window - Keep in focus!");
+        setSize(0, 0);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setFocusable(true);
+        requestFocusInWindow();
+
         ChessApi chessApi = new ChessApi(new Board());
-        Position prevSelectedP = null;
-        while (true) {
-            if (state == AppState.GAMING) {
-                chessApi.printBoard();
 
+        // Register the event listener
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
                 System.out.println("Turn: " + chessApi.getTurn());
-                System.out.println("Enter direction");
-                String input = sc.next();
+                int inputCode = e.getKeyCode();
                 int dx = 0, dy = 0;
                 boolean cursorRelated = false;
                 boolean selected = false;
-                if (input.equals("w")) {
+
+                if (inputCode == KeyEvent.VK_W) {
                     dx = 1;
                     cursorRelated = true;
-                } else if (input.equals("s")) {
+                } else if (inputCode == KeyEvent.VK_S) {
                     dx = -1;
                     cursorRelated = true;
-                } else if (input.equals("a")) {
+                } else if (inputCode == KeyEvent.VK_A) {
                     dy = -1;
                     cursorRelated = true;
-                } else if (input.equals("d")) {
+                } else if (inputCode == KeyEvent.VK_D) {
                     dy = 1;
                     cursorRelated = true;
-                } else if (input.equals("x")) {
+                } else if (inputCode == KeyEvent.VK_X || inputCode == KeyEvent.VK_SPACE) {
                     selected = true;
                 }
 
@@ -48,7 +57,9 @@ public class App {
                         prevSelectedP = null;
                     }
                 }
+
+                chessApi.printBoard();
             }
-        }
+        });
     }
 }
