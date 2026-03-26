@@ -25,6 +25,8 @@ public class ChessApi {
     private Piece pieceToTransform = null;
     private ChooseMenu pawnPromotionMenu = null;
 
+    private Turn runningTurn = null;
+
     public ChessApi(Board board) {
         this(board, PieceColor.WHITE);
     }
@@ -160,8 +162,11 @@ public class ChessApi {
         }
     }
 
-    private Turn runningTurn = null;
     public boolean tryTurn(Position p1, Position p2) {
+        return tryTurn(p1, p2, false);
+    }
+
+    public boolean tryTurn(Position p1, Position p2, boolean autoPromoteToQueen) {
         if (runningTurn != null) {
             throw new RuntimeException("Turn already running");
         }
@@ -311,7 +316,18 @@ public class ChessApi {
 
         System.out.println(piece1 instanceof Pawn && ((Pawn) piece1).shouldPromote());
         if (piece1 instanceof Pawn && ((Pawn) piece1).shouldPromote()) {
-
+            if (autoPromoteToQueen) {
+                runningTurn.addAction(
+                        board.hardReplace(
+                                piece1.getP(),
+                                new Queen(piece1.getColor(), piece1.getP(), piece1.getBoard())
+                        )
+                );
+                runningTurn.setComplete();
+                turnHistoryApi.addTurn(runningTurn);
+                runningTurn = null;
+                switchColor();
+            }
         } else {
             runningTurn.setComplete();
             turnHistoryApi.addTurn(runningTurn);
