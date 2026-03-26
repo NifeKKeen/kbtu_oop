@@ -2,10 +2,13 @@ package lab2.chess.models;
 
 import lab2.chess.models.pieces.*;
 
+import java.util.ArrayList;
+
 public class Board {
     // 0 indexed
     private Piece[][] field;
     public final int MAX_ROWS, MAX_COLS;
+    private ArrayList<ChessMove> moveHistory = new ArrayList<>();
 
     public Board() {
         this(8, 8);
@@ -58,6 +61,8 @@ public class Board {
             throw new IllegalArgumentException("Position is out of bounds");
         }
 
+        moveHistory.add(new ChessMove(piece.getP(), p2, piece, field[p2.getX()][p2.getY()]));
+
         if (field[p2.getX()][p2.getY()] != null) {
             Piece piece2 = field[p2.getX()][p2.getY()];
             piece2.removeFromBoard();
@@ -66,6 +71,26 @@ public class Board {
         field[piece.getP().getX()][piece.getP().getY()] = null;
         field[p2.getX()][p2.getY()] = piece;
         piece.setP(p2);
+    }
+
+    public void undoHardPlace() {
+        if (moveHistory.isEmpty()) {
+            return;
+        }
+
+        ChessMove lastMove = moveHistory.getLast();
+        Piece fromPiece = lastMove.fromPiece,
+                toPiece = lastMove.toPiece;
+
+        field[lastMove.fromPos.getX()][lastMove.fromPos.getY()] = fromPiece;
+        fromPiece.setP(lastMove.fromPos);
+
+        field[lastMove.toPos.getX()][lastMove.toPos.getY()] = toPiece;
+        if (toPiece != null) {
+            toPiece.placeToBoard(this, lastMove.toPos);
+        }
+
+        moveHistory.remove(moveHistory.size() - 1);
     }
 
     public Piece getPiece(Position p) {
@@ -77,5 +102,54 @@ public class Board {
     }
     public boolean isOnField(int x, int y) {
         return 0 <= x && x < MAX_ROWS && 0 <= y && y < MAX_COLS;
+    }
+
+    public boolean isAttacked(Position p, PieceColor withColor) {
+        for (int i = 0; i < MAX_ROWS; i++) {
+            for (int j = 0; j < MAX_COLS; j++) {
+                Position p2 = new Position(i, j);
+                Piece piece = getPiece(p2);
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getColor() != withColor && piece.canCapture(p)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isKingAttackedAfterMove(King king, Position p1, Position p2) {
+        // assuming move from p1 to p2 is legal
+
+        hardPlacePiece(getPiece(p1), p2);
+        boolean isKingAttacked = false;
+        if (king.getColor() == PieceColor.WHITE) {
+            if (isAttacked(king.getP(), PieceColor.WHITE)) {
+                isKingAttacked = true;
+            }
+        } else {
+            if (isAttacked(king.getP(), PieceColor.BLACK)) {
+                isKingAttacked = true;
+            }
+        }
+
+        undoHardPlace();
+        return isKingAttacked;
+    }
+
+
+    public King getAnyKing(PieceColor color) {
+        for (int i = 0; i < MAX_ROWS; i++) {
+            for (int j = 0; j < MAX_COLS; j++) {
+                Position p = new Position(i, j);
+                Piece piece = getPiece(p);
+                if (piece instanceof King && piece.getColor() == color) {
+                    return (King) piece;
+                }
+            }
+        }
+        return null;
     }
 }

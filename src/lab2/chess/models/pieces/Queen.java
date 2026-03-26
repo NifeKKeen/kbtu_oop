@@ -48,4 +48,36 @@ public class Queen extends Piece {
 
         return cur.getX() == p2.getX() && cur.getY() == p2.getY();
     }
+
+    @Override
+    public boolean canCapture(Position p2) {
+        if (!isOnBoard()) {
+            return false;
+        }
+
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
+            return false;
+        }
+
+        if (!(canReachFormula(p, p2))) {
+            return false;
+        }
+
+        int dx = p2.getX() - p.getX();
+        int dy = p2.getY() - p.getY();
+
+        dx = Math.clamp(dx, -1, 1);
+        dy = Math.clamp(dy, -1, 1);
+
+        Position cur = new Position(p.getX(), p.getY());
+        while (!(cur.getX() == p2.getX() && cur.getY() == p2.getY())) {
+            cur.addX(dx);
+            cur.addY(dy);
+            if (board.getPiece(cur) != null) {
+                break;
+            }
+        }
+
+        return cur.getX() == p2.getX() && cur.getY() == p2.getY();
+    }
 }

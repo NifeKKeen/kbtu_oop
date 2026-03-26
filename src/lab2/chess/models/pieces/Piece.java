@@ -26,15 +26,17 @@ public abstract class Piece {
         return board != null;
     }
 
-    abstract public  boolean isLegalMove(Position p2); // look from white side
+    abstract public boolean isLegalMove(Position p2);
+    public boolean canCapture(Position p2) {
+        return isLegalMove(p2);
+    }
 
     public Position getP() {
         return p;
     }
 
     public void setP(Position p) {
-        this.p.setX(p.getX());
-        this.p.setY(p.getY());
+        this.p = new Position(p);
     }
 
     public PieceColor getColor() {
@@ -48,5 +50,10 @@ public abstract class Piece {
     public void removeFromBoard() {
         this.board = null;
         this.p = null;
+    }
+
+    public void placeToBoard(Board board, Position p) {
+        this.board = board;
+        this.p = p;
     }
 }

@@ -9,7 +9,7 @@ public class ChessApi {
     private PieceColor turn = PieceColor.WHITE;
     private Position curPtr = new Position(0, 0);
     private Piece selectedPiece = null;
-
+    
     public ChessApi(Board board) {
         this(board, PieceColor.WHITE);
     }
@@ -19,6 +19,31 @@ public class ChessApi {
         this.turn = turn;
     }
 
+    public PieceColor getWinner() {
+        boolean whiteKingExists = false;
+        boolean blackKingExists = false;
+        for (int i = 0; i < board.MAX_ROWS; i++) {
+            for (int j = 0; j < board.MAX_COLS; j++) {
+                Position p = new Position(i, j);
+                Piece piece = board.getPiece(p);
+                if (piece instanceof King) {
+                    if (piece.getColor() == PieceColor.WHITE) {
+                        whiteKingExists = true;
+                    } else if (piece.getColor() == PieceColor.BLACK) {
+                        blackKingExists = true;
+                    }
+                }
+            }
+        }
+        if (whiteKingExists && blackKingExists) {
+            return null;
+        } else if (!whiteKingExists) {
+            return PieceColor.BLACK;
+        } else {
+            return PieceColor.WHITE;
+        }       
+    }
+    
     public void setSelectedPiece(Piece piece) {
         selectedPiece = piece;
     }
@@ -31,8 +56,11 @@ public class ChessApi {
         if (!board.isOnField(p)) {
             return;
         }
+        Piece piece = board.getPiece(p);
         if (selectedPiece == null) {
-            selectedPiece = board.getPiece(p);
+            if (piece != null && piece.getColor() == turn) {
+                selectedPiece = piece;
+            }
         } else {
             this.makeTurn(selectedPiece.getP(), p);
             selectedPiece = null;
@@ -40,6 +68,10 @@ public class ChessApi {
     }
 
     public boolean makeTurn(Position p1, Position p2) {
+        if (getWinner() != null) {
+            return false;
+        }
+        
         Piece piece1 = board.getPiece(p1);
 
         if (piece1 == null) {
@@ -51,6 +83,11 @@ public class ChessApi {
         }
 
         if (!piece1.isLegalMove(p2)) {
+            return false;
+        }
+        
+        King turnSideKing = board.getAnyKing(turn);
+        if (board.isKingAttackedAfterMove(turnSideKing, p1, p2)) {
             return false;
         }
 
@@ -116,6 +153,11 @@ public class ChessApi {
 
         sb.append(("   ".repeat(board.MAX_COLS) + "\n").repeat(board.MAX_ROWS * 2 + 1));
 
+        King selectedSideKing = null;
+        if (selectedPiece != null) {
+            selectedSideKing = board.getAnyKing(selectedPiece.getColor());
+        }
+
         for (int i = board.MAX_ROWS - 1; i >= 0; i--) {
             for (int j = 0; j < board.MAX_COLS; j++) {
                 Position p = new Position(i, j);
@@ -123,11 +165,23 @@ public class ChessApi {
                 Piece piece = board.getPiece(p);
                 if (piece != null) {
                     sb.setCharAt(strPos, getPieceChar(piece).charAt(0));
-                    if (selectedPiece != null && selectedPiece.isLegalMove(p)) {
+                    if (
+                            selectedPiece != null &&
+                            selectedPiece.isLegalMove(p)&&
+                            !board.isKingAttackedAfterMove(selectedSideKing, selectedPiece.getP(), p)
+                    ) {
                         excelAt(sb, p, '#', '#');
                     }
                 } else {
-                    if (selectedPiece != null && selectedPiece.isLegalMove(p)) {
+                    boolean canSelectedMove = false;
+                    if (selectedPiece != null &&
+                            selectedPiece.isLegalMove(p) &&
+                            !board.isKingAttackedAfterMove(selectedSideKing, selectedPiece.getP(), p)
+                    ) {
+                        canSelectedMove = true;
+                    }
+
+                    if (canSelectedMove) {
                         sb.setCharAt(strPos, "0".charAt(0));
                     } else if ((i + j) % 2 == 0) {
                         sb.setCharAt(strPos, "+".charAt(0));

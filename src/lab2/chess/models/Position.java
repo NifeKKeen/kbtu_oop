@@ -3,8 +3,8 @@ package lab2.chess.models;
 public class Position {
     private int x, y;
     public Position(Position p) {
-        this.x = p.x;
-        this.y = p.y;
+        this.x = p.getX();
+        this.y = p.getY();
     }
     public Position(int x, int y) {
         this.x = x;

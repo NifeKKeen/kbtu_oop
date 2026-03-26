@@ -89,4 +89,32 @@ public class Pawn extends Piece {
             }
         }
     }
+
+    @Override
+    public boolean canCapture(Position p2) {
+        if (!isOnBoard()) {
+            return false;
+        }
+
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
+            return false;
+        }
+
+        int dx = p2.getX() - p.getX();
+        int dy = p2.getY() - p.getY();
+
+        if (this.color == PieceColor.WHITE) {
+            if (!(dx == 1 && (dy == -1 || dy == 1))) {
+                return false;
+            }
+
+            return true;
+        } else {
+            if (!(dx == -1 && (dy == -1 || dy == 1))) {
+                return false;
+            }
+
+            return true;
+        }
+    }
 }

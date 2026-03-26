@@ -32,4 +32,22 @@ public class King extends Piece {
         }
         return false;
     }
+
+    @Override
+    public boolean canCapture(Position p2) {
+        if (!isOnBoard()) {
+            return false;
+        }
+
+        if (isSamePosition(p2) || !board.isOnField(p2)) {
+            return false;
+        }
+
+        for (int i = 0; i < 8; i++) {
+            if (p.getX() + moveDx[i] == p2.getX() && p.getY() + moveDy[i] == p2.getY()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
