@@ -338,6 +338,8 @@ public class ChessApi {
                 return "♞";
             } else if (piece instanceof Rook) {
                 return "♜";
+            } else if (piece instanceof Kanich) {
+                return "☻";
             }
         } else {
             if (piece instanceof Pawn) {
@@ -352,6 +354,8 @@ public class ChessApi {
                 return "♘";
             } else if (piece instanceof Rook) {
                 return "♖";
+            } else if (piece instanceof Kanich) {
+                return "☺";
             }
         }
         return "n";
