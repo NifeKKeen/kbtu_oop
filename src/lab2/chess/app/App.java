@@ -19,17 +19,18 @@ public class App extends JFrame {
         requestFocusInWindow();
 
         ChessApi chessApi = new ChessApi(new Board());
+        System.out.println("Turn: " + chessApi.getTurn());
         chessApi.printBoard();
-        
+
         // Register the event listener
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                System.out.println("Turn: " + chessApi.getTurn());
                 int inputCode = e.getKeyCode();
                 int dx = 0, dy = 0;
                 boolean cursorRelated = false;
                 boolean selected = false;
+                boolean pressedBackspace = false;
 
                 if (inputCode == KeyEvent.VK_W) {
                     dx = 1;
@@ -45,14 +46,19 @@ public class App extends JFrame {
                     cursorRelated = true;
                 } else if (inputCode == KeyEvent.VK_X || inputCode == KeyEvent.VK_SPACE) {
                     selected = true;
+                } else if (inputCode == KeyEvent.VK_BACK_SPACE) {
+                    pressedBackspace = true;
                 }
 
                 if (cursorRelated) {
                     chessApi.pushCursor(dx, dy);
                 } else if (selected) {
                     chessApi.selectAt(chessApi.getCursor());
+                } else if (pressedBackspace) {
+                    chessApi.rollbackTurn();
                 }
 
+                System.out.println("Turn: " + chessApi.getTurn());
                 chessApi.printBoard();
             }
         });

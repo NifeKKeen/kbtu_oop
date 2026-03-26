@@ -222,4 +222,16 @@ public class ChessApi {
     public Position getCursor() {
         return curPtr;
     }
+
+    public void rollbackTurn() {
+        selectedPiece = null;
+        if (!board.undoHardPlace()) {
+            return;
+        }
+        if (turn == PieceColor.WHITE) {
+            turn = PieceColor.BLACK;
+        } else {
+            turn = PieceColor.WHITE;
+        }
+    }
 }

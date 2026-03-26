@@ -61,7 +61,7 @@ public class Board {
             throw new IllegalArgumentException("Position is out of bounds");
         }
 
-        moveHistory.add(new ChessMove(piece.getP(), p2, piece, field[p2.getX()][p2.getY()]));
+        moveHistory.add(new ChessMove(new Position(piece.getP()), new Position(p2), piece, field[p2.getX()][p2.getY()]));
 
         if (field[p2.getX()][p2.getY()] != null) {
             Piece piece2 = field[p2.getX()][p2.getY()];
@@ -73,9 +73,9 @@ public class Board {
         piece.setP(p2);
     }
 
-    public void undoHardPlace() {
+    public boolean undoHardPlace() {
         if (moveHistory.isEmpty()) {
-            return;
+            return false;
         }
 
         ChessMove lastMove = moveHistory.getLast();
@@ -91,6 +91,7 @@ public class Board {
         }
 
         moveHistory.removeLast();
+        return true;
     }
 
     public Piece getPiece(Position p) {
