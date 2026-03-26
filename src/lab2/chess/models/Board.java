@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 public class Board {
     // 0 indexed
-    private Piece[][] field;
+    private final Piece[][] field;
     public final int MAX_ROWS, MAX_COLS;
-    private ArrayList<ChessMove> moveHistory = new ArrayList<>();
+    private final ArrayList<ChessMove> moveHistory = new ArrayList<>();
 
     public Board() {
         this(8, 8);
@@ -90,7 +90,7 @@ public class Board {
             toPiece.placeToBoard(this, lastMove.toPos);
         }
 
-        moveHistory.remove(moveHistory.size() - 1);
+        moveHistory.removeLast();
     }
 
     public Piece getPiece(Position p) {

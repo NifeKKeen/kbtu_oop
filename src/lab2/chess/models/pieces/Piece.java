@@ -26,10 +26,16 @@ public abstract class Piece {
         return board != null;
     }
 
-    abstract public boolean isLegalMove(Position p2);
-    public boolean canCapture(Position p2) {
-        return isLegalMove(p2);
+    public boolean isLegalMove(Position p2) {
+        if (!this.canCapture(p2)) {
+            return false;
+        }
+
+        Piece piece2 = board.getPiece(p2);
+        return piece2 == null || piece2.getColor() != this.color;
     }
+
+    abstract public boolean canCapture(Position p2);
 
     public Position getP() {
         return p;
