@@ -104,12 +104,6 @@ public class App extends JFrame {
             } else if (selected) {
                 chessApi.selectPromMenu();
             }
-            chessApi.printWindow();
-            if (whiteIsBot && chessApi.getTurnSide() == PieceColor.WHITE) {
-                chessApi.doBotTurn();
-            } else if (blackIsBot && chessApi.getTurnSide() == PieceColor.BLACK) {
-                chessApi.doBotTurn();
-            }
         } else if (actionNeeded == ActionNeededEnum.MOVE) {
             if (cursorRelated) {
                 chessApi.pushCursor(dx, dy);
@@ -117,8 +111,11 @@ public class App extends JFrame {
                 chessApi.selectAt(chessApi.getCursor());
             } else if (pressedBackspace) {
                 chessApi.rollbackTurn();
+            } else if (pressedBackslash) {
+                chessApi.undoRollbackTurn();
             }
-            if (!pressedBackspace) {
+
+            if (!pressedBackspace && !pressedBackslash) {
                 chessApi.printWindow();
                 if (whiteIsBot && chessApi.getTurnSide() == PieceColor.WHITE) {
                     chessApi.doBotTurn();

@@ -154,7 +154,6 @@ public class Board {
         return isKingAttacked;
     }
 
-
     public King getAnyKing(PieceColor color) {
         for (int i = 0; i < MAX_ROWS; i++) {
             for (int j = 0; j < MAX_COLS; j++) {
@@ -206,6 +205,29 @@ public class Board {
 
         moveHistory.removeLast();
         return lastMove;
+    }
+
+    // only repeats what is on action,
+    // it will not add the action parameter itself to histroy stack
+    public ChessAction doAction(ChessAction action) {
+        if (action instanceof ChessActionCapture) {
+            ChessActionCapture actionCapture = (ChessActionCapture) action;
+            actionCapture.fromPiece.placeToBoard(this, actionCapture.fromPos);
+            if (actionCapture.toPiece != null) {
+                actionCapture.toPiece.placeToBoard(this, actionCapture.toPos);
+            }
+            return hardCapture(actionCapture.fromPiece, actionCapture.toPos);
+        } else if (action instanceof ChessActionReplace) {
+            ChessActionReplace actionReplace = (ChessActionReplace) action;
+            if (actionReplace.pieceBefore != null) {
+                actionReplace.pieceBefore.placeToBoard(this, actionReplace.fromPos);
+            }
+            if (actionReplace.pieceAfter != null) {
+                actionReplace.pieceAfter.placeToBoard(this, actionReplace.toPos);
+            }
+            return hardReplace(actionReplace.fromPos, actionReplace.pieceAfter);
+        }
+        return null;
     }
 
     public ChessAction undoAction() {

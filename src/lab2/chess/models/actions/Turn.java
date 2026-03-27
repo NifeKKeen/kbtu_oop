@@ -13,11 +13,13 @@ public class Turn {
     public boolean _whiteKingMoved = false, _blackKingMoved = false;
     public ArrayList<Rook> _whiteRooksMoved = new ArrayList<>(),
                             _blackRooksMoved = new ArrayList<>();
+    public final Turn prevTurn;
 
     public Turn(Turn prevTurn, PieceColor side) {
         this.side = side;
         actions = new ArrayList<>();
 
+        this.prevTurn = prevTurn;
         if (prevTurn != null) {
             _whiteKingMoved = prevTurn._whiteKingMoved;
             _blackKingMoved = prevTurn._blackKingMoved;

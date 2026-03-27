@@ -508,6 +508,12 @@ public class ChessApi {
         return lastTurn;
     }
 
+    public Turn undoRollbackTurn() {
+        selectedPiece = null;
+
+        return turnHistoryApi.redoTurn();
+    }
+
     public void pushPromMenuCursor(int dx) {
         if (pawnPromotionMenu == null) {
             return;
