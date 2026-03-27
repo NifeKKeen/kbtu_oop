@@ -3,6 +3,7 @@ package lab2.chess.app;
 import lab2.chess.models.*;
 import lab2.chess.models.actions.Turn;
 import lab2.chess.models.actions.TurnHistoryApi;
+import lab2.chess.models.engine.ChessEngine;
 import lab2.chess.models.pieces.*;
 
 enum ActionNeededEnum {
@@ -36,7 +37,7 @@ public class ChessApi {
         this.board = board;
         this.turnSide = turn;
         PRINT_STR_ROWS = board.MAX_ROWS * 2 + 1;
-        PRINT_STR_COLS = board.MAX_COLS * CELL_WIDTH + 15 + 1;
+        PRINT_STR_COLS = board.MAX_COLS * CELL_WIDTH + 19 + 1;
     }
 
     private void switchColor() {
@@ -297,7 +298,7 @@ public class ChessApi {
         if (!piece1.isLegalMove(p2)) {
             return false;
         }
-        
+
         King turnSideKing = board.getAnyKing(turnSide);
         if (board.isKingAttackedAfterMove(turnSideKing, p1, p2)) {
             return false;
@@ -314,7 +315,6 @@ public class ChessApi {
         }
         runningTurn.addAction(board.hardCapture(piece1, p2));
 
-        System.out.println(piece1 instanceof Pawn && ((Pawn) piece1).shouldPromote());
         if (piece1 instanceof Pawn && ((Pawn) piece1).shouldPromote()) {
             if (autoPromoteToQueen) {
                 runningTurn.addAction(
@@ -385,7 +385,7 @@ public class ChessApi {
 
     public void setStrAtSideBar(StringBuilder sb, int strRow, String str) {
         int remainingStrCols = PRINT_STR_COLS - board.MAX_COLS * CELL_WIDTH;
-        for (int j = 0; j < Math.min(str.length(), remainingStrCols); j++) {
+        for (int j = 0; j < Math.min(str.length(), remainingStrCols - 2); j++) {
             sb.setCharAt(strRow * PRINT_STR_COLS + board.MAX_COLS * CELL_WIDTH +
                     j + 1, str.charAt(j)
             );
@@ -581,5 +581,13 @@ public class ChessApi {
         }
         pieceToTransform = null;
         pawnPromotionMenu = null;
+    }
+
+    public boolean doBotTurn() {
+        ChessEngine.Move move = ChessEngine.findBestMove(this, board, 3);
+        if (move == null) {
+            return false;
+        }
+        return tryTurn(move.from, move.to, true);
     }
 }

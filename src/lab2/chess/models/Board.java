@@ -50,7 +50,7 @@ public class Board {
 
         // Kanichs
         field[2][4] = new Kanich(PieceColor.WHITE, new Position(2, 4), this);
-        field[4][4] = new Kanich(PieceColor.BLACK, new Position(4, 4), this);
+        field[5][4] = new Kanich(PieceColor.BLACK, new Position(5, 4), this);
     }
 
     public Board(int mxRows, int mxCols) {
