@@ -590,7 +590,7 @@ public class ChessApi {
     }
 
     public boolean doBotTurn() {
-        ChessEngine.Move move = ChessEngine.findBestMove(this, board, 3);
+        ChessEngine.Move move = ChessEngine.findBestMove(this, board, 5);
         if (move == null) {
             return false;
         }

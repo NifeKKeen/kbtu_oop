@@ -32,7 +32,9 @@ public class App extends JFrame {
 
                 if (appState == AppState.MENU) {
                     handleMenuInput(inputCode);
-                    printMenu();
+                    if (appState == AppState.MENU) {
+                        printMenu();
+                    }
                 } else if (appState == AppState.GAMING) {
                     handleGameInput(inputCode);
                     chessApi.printWindow();
@@ -137,7 +139,7 @@ public class App extends JFrame {
 
     public void printMenu() {
         String[] toPrint = menu.toStrings(20);
-        System.out.println("\n".repeat(toPrint.length));
+        System.out.println("\n".repeat(toPrint.length * 6));
         for (int i = 0; i < toPrint.length; i++) {
             System.out.println(toPrint[i]);
         }

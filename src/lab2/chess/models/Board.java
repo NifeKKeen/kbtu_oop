@@ -35,22 +35,22 @@ public class Board {
         field[7][6] = new Knight(PieceColor.BLACK, new Position(7, 6), this);
 
         // Bishops
-        field[0][2] = new Bishop(PieceColor.WHITE, new Position(0, 2), this);
+        // field[0][2] = new Bishop(PieceColor.WHITE, new Position(0, 2), this);
         field[0][5] = new Bishop(PieceColor.WHITE, new Position(0, 5), this);
         field[7][2] = new Bishop(PieceColor.BLACK, new Position(7, 2), this);
         field[7][5] = new Bishop(PieceColor.BLACK, new Position(7, 5), this);
 
         // Queens
-        field[0][3] = new Queen(PieceColor.WHITE, new Position(0, 3), this);
+        // field[0][3] = new Queen(PieceColor.WHITE, new Position(0, 3), this);
         field[7][3] = new Queen(PieceColor.BLACK, new Position(7, 3), this);
 
         // Kings
         field[0][4] = new King(PieceColor.WHITE, new Position(0, 4), this);
         field[7][4] = new King(PieceColor.BLACK, new Position(7, 4), this);
 
-        // Kanichs
-        field[2][4] = new Kanich(PieceColor.WHITE, new Position(2, 4), this);
-        field[5][4] = new Kanich(PieceColor.BLACK, new Position(5, 4), this);
+        // // Kanichs
+        // field[2][4] = new Kanich(PieceColor.WHITE, new Position(2, 4), this);
+        // field[5][4] = new Kanich(PieceColor.BLACK, new Position(5, 4), this);
     }
 
     public Board(int mxRows, int mxCols) {
